@@ -19,7 +19,7 @@ install.packages("plotly")
 
 To install the Fastfrag package:
 
-1. Download the package from the GitHub repository or directly from the server:
+1. Download the package from the GitHub repository:
    
 2. Load the package in your R session:
 
