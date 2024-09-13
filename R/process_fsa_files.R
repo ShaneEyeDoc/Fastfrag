@@ -1,40 +1,38 @@
-#' Process .fsa Files and Generate Plot
+#' Process FSA Files
 #'
-#' This function processes all .fsa files in a given folder, applies the ladder and 
-#' generates an interactive plot of the data.
+#' This function processes .fsa files from a specified folder, applies necessary transformations,
+#' and generates an interactive plot for visualization.
 #'
-#' @param folder_path A character string specifying the path to the folder containing .fsa files.
-#' @param ladder A numeric vector specifying the ladder values used in the analysis.
-#' @param init_thresh A numeric value specifying the initial threshold for plot generation (default is 7000).
-#' @return A plotly object containing the plot of all processed .fsa files.
+#' @param folder_path A character string specifying the folder containing .fsa files.
+#' @param ladder A vector or object representing the ladder information for processing.
+#' @return A Plotly object containing the interactive plot.
+#' @import plotly
 #' @export
-#'
-#' @examples
-#' folder_path <- "/home/sliu/ShaneLiu/Genotype/fsa1"
-#' ladder <- c(35, 50, 75, 100, 139, 150, 160, 200, 250, 300, 340, 350, 400, 450, 490, 500)
-#' plot <- process_fsa_files(folder_path, ladder)
-#' plot
-process_fsa_files <- function(folder_path, ladder, init_thresh = 7000) {
+#Alternative process_fsa_files function with interactive toggle buttons, so not all the plots showing up at once
+process_fsa_files <- function(folder_path, ladder) {
     # Get a list of all .fsa files in the folder
     files <- list.files(path = folder_path, pattern = "\\.fsa$", full.names = TRUE)
+    file_names <- basename(files)
     
     # Initialize variables to track global y-axis limits
     global_y_min <- Inf
     global_y_max <- -Inf
-    
+
     # Store the traces for adding later
     trace_list <- list()
-    
+
     # Loop through each file and process it
-    for (file in files) {
-        print(paste("Processing file:", basename(file)))
+    for (i in seq_along(files)) {
+        file <- files[i]
+        file_name <- file_names[i]
+        print(paste("Processing file:", file_name))
         
         # Process the file using your modified function
-        my.plants <- storing.inds1(folder = folder_path, file = basename(file), channels = 4, rawPlot = FALSE, fourier = TRUE)
+        my.plants <- storing.inds1(folder = folder_path, file = file_name, channels = 4, rawPlot = FALSE, fourier = TRUE)
         ladder.info.attach(stored = my.plants, ladder = ladder)
         
         # Generate the plot data using overview_interactive1
-        plot_data <- overview_interactive1(my.inds = my.plants, channel = 1, ladder = ladder, init.thresh = init_thresh)
+        plot_data <- overview_interactive1(my.inds = my.plants, channel = 1, ladder = ladder, init.thresh = 7000)
         
         # Check if x and y are available in plot_data
         if ("x" %in% names(plot_data) && "y" %in% names(plot_data)) {
@@ -43,27 +41,46 @@ process_fsa_files <- function(folder_path, ladder, init_thresh = 7000) {
             global_y_max <- max(global_y_max, max(plot_data$y, na.rm = TRUE))
             
             # Store the trace for later plotting
-            trace_list[[basename(file)]] <- list(
+            trace_list[[file_name]] <- list(
                 x = plot_data$x,
                 y = plot_data$y,
-                name = basename(file)
+                name = file_name
             )
         } else {
-            print(paste("Skipping file due to missing x or y columns:", basename(file)))
+            print(paste("Skipping file due to missing x or y columns:", file_name))
         }
     }
-    
+
     # Initialize an empty plotly object
     p <- plot_ly()
-    
+
     # Add each trace to the plotly object
     for (trace in trace_list) {
-        p <- add_trace(p, x = trace$x, y = trace$y, type = 'scatter', mode = 'lines', name = trace$name)
+        p <- add_trace(p, x = trace$x, y = trace$y, type = 'scatter', mode = 'lines', name = trace$name, visible = FALSE)
     }
-    
-    # Adjust the y-axis limits based on the global min and max
-    p <- layout(p, yaxis = list(range = c(global_y_min, global_y_max)))
-    
+
+    # Add toggle buttons to control trace visibility
+    p <- layout(p,
+                updatemenus = list(
+                    list(
+                        buttons = lapply(names(trace_list), function(fn) {
+                            list(
+                                method = 'update',
+                                args = list(
+                                    list(visible = sapply(names(trace_list), function(name) name == fn)),
+                                    list(title = paste("Showing:", fn))
+                                ),
+                                label = fn
+                            )
+                        }),
+                        direction = 'down',
+                        showactive = TRUE
+                    )
+                ),
+                yaxis = list(title = "Y-axis", range = c(global_y_min, global_y_max))
+    )
+
     # Render the final plot
-    return(p)
+    p
 }
+
