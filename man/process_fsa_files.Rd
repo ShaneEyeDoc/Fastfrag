@@ -2,27 +2,19 @@
 % Please edit documentation in R/process_fsa_files.R
 \name{process_fsa_files}
 \alias{process_fsa_files}
-\title{Process .fsa Files and Generate Plot}
+\title{Process FSA Files}
 \usage{
-process_fsa_files(folder_path, ladder, init_thresh = 7000)
+process_fsa_files(folder_path, ladder)
 }
 \arguments{
-\item{folder_path}{A character string specifying the path to the folder containing .fsa files.}
+\item{folder_path}{A character string specifying the folder containing .fsa files.}
 
-\item{ladder}{A numeric vector specifying the ladder values used in the analysis.}
-
-\item{init_thresh}{A numeric value specifying the initial threshold for plot generation (default is 7000).}
+\item{ladder}{A vector or object representing the ladder information for processing.}
 }
 \value{
-A plotly object containing the plot of all processed .fsa files.
+A Plotly object containing the interactive plot.
 }
 \description{
-This function processes all .fsa files in a given folder, applies the ladder and 
-generates an interactive plot of the data.
-}
-\examples{
-folder_path <- "/home/sliu/ShaneLiu/Genotype/fsa1"
-ladder <- c(35, 50, 75, 100, 139, 150, 160, 200, 250, 300, 340, 350, 400, 450, 490, 500)
-plot <- process_fsa_files(folder_path, ladder)
-plot
+This function processes .fsa files from a specified folder, applies necessary transformations,
+and generates an interactive plot for visualization.
 }

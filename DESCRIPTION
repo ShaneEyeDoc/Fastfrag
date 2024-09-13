@@ -1,7 +1,7 @@
 Package: Fastfrag
 Type: Package
 Title: FastFrag - A Modified Version of Fragman for Genotyping Analysis
-Version: 0.1.0
+Version: 1.0.0
 Author: SLiu
 Maintainer: SL <smgxiux@ucl.ac.uk>
 Description: This package includes the original Fragman functionalities along with custom modifications to specific functions for genotyping CTG18.1 fragment in FECD patients.
